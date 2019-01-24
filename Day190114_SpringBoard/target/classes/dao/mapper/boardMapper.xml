@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper     
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"     
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.IBoardDao">
+	<sql id="type">
+		<choose>
+			<when test="type != 0">
+				<if test="title != null">
+					or title like('%${title}%')
+				</if>
+				<if test="name != null">
+					or name like('%${name}%')
+				</if>
+				<if test="content != null">
+					or content like('%${content}%')
+				</if>
+			</when>
+			<otherwise>
+				or 1=1
+			</otherwise>
+		</choose>
+	</sql>
+	<select id="replyCount" resultType="map">
+		select b.num as bnum, count(r.content) as count
+			from board b, reply r
+		where b.num=r.board_num(+)
+		group by b.num
+	</select>
+	
+	<insert id="insertBoard" parameterType="map">
+		<selectKey order="BEFORE" keyProperty="num" resultType="int">
+			select board_seq.nextval from dual
+		</selectKey>
+		insert into board
+		(num,name,email,pass,title,content)
+		values (#{num},#{name},#{email},#{pass},#{title},#{content})
+	</insert>
+	<update id="updateBoard" parameterType="map">
+		update board
+		set name = #{name},
+		email = #{email},
+		pass = #{pass},
+		title = #{title},
+		content = #{content}
+		where num = #{num}
+	</update>
+	<delete id="deleteBoard" parameterType="int">
+		delete
+		from board
+		where num = #{num}
+	</delete>
+	<select id="selectOne" parameterType="int" resultType="map">
+		select b.num, b.name, b.email, b.pass, b.title, b.content,
+				b.read_count, b.write_date, f.filename
+			from board b left outer join uploadfile f
+			on b.num = f.board_num
+		where num = #{num}
+	</select>
+		<!-- <select id="selectOne" parameterType="int" resultType="map">
+		select *
+		from board where num = #{num}
+	</select> -->
+	<select id="selectAll" resultType="map">
+		select * from board
+	</select>
+
+<!-- 	<select id="boardList" resultType="map" parameterType="map">
+		select *
+		from(select ROWNUM as
+			RNUM,NUM,NAME,EMAIL,PASS,TITLE,CONTENT,READ_COUNT,WRITE_DATE
+			from(select NUM,NAME,EMAIL,PASS,TITLE,CONTENT,READ_COUNT,WRITE_DATE
+				from board
+				
+				where 1=0
+					<if test="title != null">
+						or title like('%${title}%')
+					</if>
+					<if test="name != null">
+						or name like('%${name}%')
+					</if>
+					<if test="content != null">
+						or content like('%${content}%')
+					</if>
+					타입이 없을경우(전체검사) 모두 조회하는 코드
+					<if test="type == 0">
+						or 1=1
+					</if>
+					<choose>
+						<when test="type != 0">
+							<if test="title != null">
+								or title like('%${title}%')
+							</if>
+							<if test="name != null">
+								or name like('%${name}%')
+							</if>
+							<if test="content != null">
+								or content like('%${content}%')
+							</if>
+						</when>
+						<otherwise>
+							or 1=1
+						</otherwise>
+					</choose>
+					<include refid="type"/>
+				order by num desc))
+		where RNUM between #{firstRow} and #{endRow}
+	</select> -->
+	
+	<!-- 게시글+댓글수 한번에 조회하는 sql -->
+<!-- 	<select id="boardList" resultType="map" parameterType="map">
+		select *
+		from(select ROWNUM as
+			RNUM,NUM,NAME,TITLE,READ_COUNT,WRITE_DATE, rcount
+			from(select b.NUM,b.NAME,b.TITLE,b.READ_COUNT,b.WRITE_DATE, count(r.id) as rcount
+				from board b left outer join reply r
+				on b.num = r.board_num
+				where 1=0
+			<choose>
+			<when test="type != 0">
+				<if test="title != null">
+					or b.title like('%${title}%')
+				</if>
+				<if test="name != null">
+					or b.name like('%${name}%')
+				</if>
+				<if test="content != null">
+					or b.content like('%${content}%')
+				</if>
+			</when>
+			<otherwise>
+				or 1=1
+			</otherwise>
+			</choose>
+				group by b.NUM,b.NAME,b.TITLE,b.READ_COUNT,b.WRITE_DATE
+				order by b.num desc))
+		where RNUM between #{firstRow} and #{endRow}
+	</select> -->
+	
+	<select id="boardList" resultType="map" parameterType="map">
+select * from
+	(select ROWNUM as RNUM, q.NUM,q.NAME,q.TITLE,q.READ_COUNT,q.WRITE_DATE, rcount,f.filename
+			from(select b.NUM,b.NAME,b.TITLE,b.READ_COUNT,b.WRITE_DATE, count(r.id) as rcount
+				   from board b left outer join reply r
+				     on b.num = r.board_num
+				  group by b.NUM,b.NAME,b.TITLE,b.READ_COUNT,b.WRITE_DATE
+				  order by b.num desc) q left outer join uploadfile f
+                on q.num = f.board_num
+                where 1=0
+		<choose>
+			<when test="type != 0">
+				<if test="title != null">
+					or q.title like('%${title}%')
+				</if>
+				<if test="name != null">
+					or q.name like('%${name}%')
+				</if>
+				<if test="content != null">
+					or q.content like('%${content}%')
+				</if>
+			</when>
+			<otherwise>
+				or 1=1
+			</otherwise>
+			</choose>)
+where RNUM between 1 and 10
+	</select>
+	
+	
+	<update id="plusReadCount" parameterType="int">
+		update board
+			set read_count = read_count+1
+		where num = #{num}
+	</update>
+	<select id="selectTotalCount" resultType="int" parameterType="map">
+		select count(*) from board
+		where 1=0
+				<include refid="type"></include>
+				<!-- <if test="title != null">
+					or title like('%${title}%')
+				</if>
+				<if test="name != null">
+					or name like('%${name}%')
+				</if>
+				<if test="content != null">
+					or content like('%${content}%')
+				</if>
+				타입이 없을경우(전체검사) 모두 조회하는 코드
+				<if test="type == 0">
+					or 1=1
+				</if> -->
+	</select>
+	
+	<!-- file upload를 위한 sql 작성 -->
+	<insert id="insertAttach" parameterType="map">
+		insert into uploadfile
+			  (id, board_num, filename)
+		values(file_seq.nextval,#{NUM},#{FILENAME})
+	</insert>
+	<select id="selectAttach" parameterType="int" resultType="map">
+		select * from uploadfile
+		where board_num = #{num}
+	</select>
+	
+	
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+
+ 

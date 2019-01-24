@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper     
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"     
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.ReplyDao">
+	<insert id="insertReply" parameterType="map">
+		insert into reply
+			   (id,board_num,name,pass,content) 
+		values (reply_seq.nextval,#{boardNum},#{name},#{pass},#{content})
+	</insert>
+	<update id="updateReply" parameterType="map">
+		update reply
+		   set board_num = #{boardNum},
+		       name = #{name},
+			   pass = #{pass},
+			   content = #{content}
+		 where id = #{id}
+	</update>
+	<delete id="deleteReply" parameterType="int">
+		delete from reply where id = #{id}
+	</delete>
+	<select id="selectOne" parameterType="int" resultType="map">
+		select * from reply where id = #{id}
+	</select>
+	<select id="selectByBoardNum" parameterType="int" resultType="map">
+		select * from reply where board_num = #{boardNum}
+	</select>
+</mapper>
+
+
+
+

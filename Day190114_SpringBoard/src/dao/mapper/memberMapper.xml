@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper     
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"     
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.MemberDao">
+	<insert id="insertMember" parameterType="map">
+		insert into member
+ 			(m_num,m_userid,m_pw,m_name,m_email)
+ 			values(member_seq.nextval,#{m_userid},#{m_pw},#{m_name},#{m_email})
+	</insert>
+	<update id="updateMember" parameterType="map">
+ 		update member
+ 			set m_name = #{m_name},
+ 				m_pw = #{m_pw},
+ 				m_email = #{m_email}
+ 				where m_num = #{m_num}
+ 	</update>
+ 	
+ 	<delete id="deleteMember" parameterType="string">
+ 		delete from member
+ 			where m_num = #{m_num}
+ 	</delete>
+ 	<select id="selectOne" parameterType="string" resultType="map">
+ 		select * from member
+ 			where m_num = #{m_num}
+ 	</select>
+ 	<select id="selectById" parameterType="String" resultType="map">
+ 		select * from member
+ 			where m_userid = #{m_userid}
+ 	</select>
+ 	<select id="selectAll" resultType="map">
+ 		select * from member
+ 		order by m_num
+ 	</select>
+</mapper>

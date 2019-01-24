@@ -1,0 +1,56 @@
+.wrap{
+	width : 800px;
+	margin : 0 auto;
+}
+table{
+	width: 100%; /* 부모요소 너비에 맞게 */
+	border-collapse: collapse;	
+}
+table,td,th {
+	border: 1px solid #c0c0c0;
+	padding: 5px;
+}
+th{
+	background-color: #99fe01;
+}
+a{
+	text-decoration: none; /* 링크 줄 없애기 */
+	color: black;  /* 글 색상 변경*/
+	
+}
+p{
+	text-align: center;
+}
+a:hover {
+	text-decoration: underline;
+	color:  orange;
+}
+.modal-table th{
+	background-color: #d9d9d9;
+}
+#modal-modify{
+  	display: none;   
+	width: 400px;
+	height: 180px;
+	position: absolute;
+	top: 45%;
+	left: 45%;
+	background-color: gray;
+}
+
+
+p{
+	text-align: center;
+}
+
+
+
+
+
+
+
+
+
+
+
+
